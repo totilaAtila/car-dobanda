@@ -1,0 +1,13 @@
+{
+  "name": "CAR Dobândă",
+  "short_name": "CAR",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "icons": [{
+    "src": "icon512.png",
+    "type": "image/png",
+    "sizes": "512x512"
+  }]
+}
