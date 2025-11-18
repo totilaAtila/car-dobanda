@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CAR - Calculare Dobândă</title>
+    
+    <!-- PWA Meta Tags pentru iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAR Dobândă">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Manifest pentru PWA -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNBUiAtIENhbGN1bGFyZSBEb2LDom5kxIMiLAogICJzaG9ydF9uYW1lIjogIkNBUiIsCiAgImRlc2NyaXB0aW9uIjogIkFwbGljYcWjaWUgcGVudHJ1IGNhbGN1bGFyZWEgZG9iw6JuemkgbGEgaW1wcnVtdXR1cmkiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzY2N2VlYSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSXlOREFpSUdobGFXZG9kRDBpTWpRd0lqNEtJQ0E4WTJseVkyeGxJR040UFNJeE1qQWlJR041UFNJeE1qQWlJSEk5SWprd0lpQm1hV3hzUFNJalhESXdOMk53WVNBeFEwWWlMejRLUEM5emRtYysifSwKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSTFNVElpSUdobGFXZG9kRDBpTlRFeUlqNEtJQ0E4WTJseVkyeGxJR040UFNJeU5UWWlJR041UFNJeU5UWWlJSEk5SWpFNE1DSWdabWxzYkQwaFgyTXlNRGRqY0dFZ01VTkdJaTgrQ2p3dmMyWm5QZz09IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+    
+    <!-- Preload pentru resurse critice -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0 0 50% 50%;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .content {
+            padding: 25px 20px 30px;
+        }
+
+        .pwa-install {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .pwa-install h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .pwa-install p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .file-upload {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+            text-align: center;
+        }
+
+        .file-upload.ready {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d1edff 0%, #a8edea 100%);
+        }
+
+        .file-upload h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .upload-method {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .method-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .file-group {
+            margin-bottom: 12px;
+        }
+
+        .file-group label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .file-group input, .file-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .file-group input:focus, .file-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .file-group input:disabled {
+            background: #f8f9fa;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .file-group textarea {
+            height: 100px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upload-status {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-success {
+            background: #d1edff;
+            color: #004085;
+            border: 1px solid #a8edea;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .search-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            -webkit-appearance: none;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .input-group input:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Auto-complete dropdown */
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #4facfe;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .autocomplete-item:hover, .autocomplete-item.selected {
+            background-color: #e3f2fd;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item .member-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .autocomplete-item .member-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            -webkit-appearance: none;
+        }
+
+        .search-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 25px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .member-card {
+            display: none;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: #333;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .member-card h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .member-card p {
+            margin-bottom: 6px;
+            font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .loan-info {
+            background: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 18px;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .loan-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #d63384;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            -webkit-appearance: none;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(238, 90, 82, 0.3);
+        }
+
+        .history-card {
+            display: none;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .history-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .history-table th {
+            background: rgba(255,255,255,0.6);
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+            border: 1px solid #ccc;
+            min-width: 60px;
+        }
+
+        .history-table td {
+            padding: 6px 4px;
+            text-align: center;
+            font-size: 10px;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-family: 'Consolas', 'Courier New', monospace;
+            min-width: 60px;
+        }
+
+        .history-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Formatări HTML identice cu Python */
+        .history-table .green-text {
+            color: #008000 !important;
+            font-weight: bold !important;
+        }
+
+        .history-table .red-text {
+            color: #ff0000 !important;
+            font-weight: bold !important;
+        }
+
+        .history-table .blue-text {
+            color: #0000ff !important;
+            font-weight: bold !important;
+        }
+
+        .history-table .orange-text {
+            color: #ffa500 !important;
+            font-weight: bold !important;
+        }
+
+        .history-table .grey-text {
+            color: #808080 !important;
+            font-style: italic !important;
+        }
+
+        /* Responsive pentru landscape */
+        @media screen and (orientation: landscape) {
+            .container {
+                max-width: 90vw;
+            }
+            
+            .history-table {
+                font-size: 12px;
+            }
+            
+            .history-table th {
+                padding: 10px 6px;
+                font-size: 12px;
+                min-width: 80px;
+            }
+            
+            .history-table td {
+                padding: 8px 6px;
+                font-size: 11px;
+                min-width: 80px;
+            }
+        }
+
+        /* Pentru ecrane mai mari în landscape */
+        @media screen and (orientation: landscape) and (min-width: 768px) {
+            .container {
+                max-width: 95vw;
+            }
+            
+            .history-table th {
+                font-size: 13px;
+                padding: 12px 8px;
+                min-width: 100px;
+            }
+            
+            .history-table td {
+                font-size: 12px;
+                padding: 10px 8px;
+                min-width: 100px;
+            }
+        }
+
+        .result-card {
+            display: none;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            font-size: 14px;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #d63384;
+        }
+
+        .total-payment {
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 18px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .total-amount {
+            font-size: 26px;
+            font-weight: 700;
+            color: #198754;
+            margin-top: 5px;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 14px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            font-size: 15px;
+            -webkit-appearance: none;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .error-message, .success-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            display: none;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d1edff 0%, #a8edea 100%);
+            color: #004085;
+            border: 1px solid #a8edea;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #ffc107;
+            padding: 15px 18px;
+            margin-bottom: 25px;
+            border-radius: 0 10px 10px 0;
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.4;
+        }
+
+        /* iOS specific */
+        @supports (-webkit-touch-callout: none) {
+            .container {
+                margin-bottom: 30px;
+            }
+            
+            input, textarea, button {
+                -webkit-appearance: none;
+                border-radius: 12px;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: #1a1a1a;
+                color: #ffffff;
+            }
+            
+            .file-upload {
+                background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+                border-color: #4a4a4a;
+            }
+            
+            .upload-method {
+                background: rgba(255,255,255,0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 CAR</h1>
+            <p>Calculare Dobândă Împrumuturi</p>
+        </div>
+        
+        <div class="content">
+            <div class="pwa-install" id="pwaInstall">
+                <h3>📱 Instalare pe iPhone</h3>
+                <p>Pentru cea mai bună experiență, atingeți butonul "Partajare" și selectați "Adăugare pe ecranul principal"</p>
+            </div>
+
+            <div class="file-upload" id="fileUpload">
+                <h3>📁 Încărcați bazele de date</h3>
+                
+                <div class="upload-method">
+                    <div class="method-title">Selectare fișiere</div>
+                    <div class="file-group">
+                        <label for="membriFile">MEMBRII.db:</label>
+                        <input type="file" id="membriFile" accept=".db,.sqlite,.sqlite3" disabled>
+                    </div>
+                    <div class="file-group">
+                        <label for="depcredFile">DEPCRED.db:</label>
+                        <input type="file" id="depcredFile" accept=".db,.sqlite,.sqlite3" disabled>
+                    </div>
+                </div>
+
+                <div class="upload-status status-loading" id="uploadStatus">
+                    Încărcare SQL.js...
+                </div>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="search-section">
+                <div class="input-group">
+                    <label for="searchInput">Căutare membru:</label>
+                    <input type="text" id="searchInput" placeholder="Introduceți numele..." disabled autocomplete="off">
+                    <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+                </div>
+                <button class="search-btn" id="searchBtn" disabled>
+                    🔍 CAUTĂ MEMBRU
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Se caută...</p>
+            </div>
+
+            <div class="member-card" id="memberCard">
+                <h3 id="memberName">👤 </h3>
+                <p id="memberFisa">📋 Fișa: </p>
+                <p id="memberAddress">🏠 </p>
+                <p id="memberDate">📅 Înscris: </p>
+                
+                <div class="loan-info" id="loanInfo" style="display: none;">
+                    <div class="loan-amount" id="loanAmount">💰 Sold împrumut: 0.00 lei</div>
+                    <button class="calculate-btn" id="calculateBtn">
+                        📊 CALCULEAZĂ DOBÂNDA
+                    </button>
+                </div>
+                
+                <div id="noLoan" style="display: none; text-align: center; color: #198754; font-weight: bold; margin-top: 18px;">
+                    ✅ Nu are împrumut activ
+                </div>
+            </div>
+
+            <div class="history-card" id="historyCard">
+                <div class="history-title">📊 Istoric Financiar - Situație Împrumuturi</div>
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Dobândă</th>
+                            <th>Împrumut</th>
+                            <th>Rată</th>
+                            <th>Sold</th>
+                            <th>Dată</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Datele se vor încărca dinamic -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="result-card" id="resultCard">
+                <div class="result-title">💹 Rezultatul calculului</div>
+                <div class="result-item">
+                    <span>📈 Dobândă calculată:</span>
+                    <span class="result-value" id="interestValue">0.00 lei</span>
+                </div>
+                <div class="result-item">
+                    <span>💰 Sold curent:</span>
+                    <span id="currentLoanValue">0.00 lei</span>
+                </div>
+                <div class="result-item">
+                    <span>📅 Perioada:</span>
+                    <span id="periodValue">-</span>
+                </div>
+                <div class="result-item">
+                    <span>📊 Suma soldurilor:</span>
+                    <span id="sumValue">0.00 lei</span>
+                </div>
+                <div class="total-payment">
+                    <p>💸 Total de plată:</p>
+                    <div class="total-amount" id="totalPayment">0.00 lei</div>
+                </div>
+            </div>
+
+            <button class="reset-btn" id="resetBtn">🔄 CĂUTARE NOUĂ</button>
+
+            <div class="info-box">
+                <strong>ℹ️ Algoritm:</strong> Detectează cazurile speciale (dobândă + împrumut nou în aceeași lună = ciclu nou), altfel găsește ultima perioadă cu sold ≤ 0, calculează suma soldurilor pozitive din perioada următoare până la prezent, aplică rata 4‰ (0.004). <strong>Împrumut activ:</strong> cel mai recent cu sold > 0. <strong>Total plată:</strong> doar soldul curent (fără dobândă).
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variabile globale
+        let SQL = null;
+        let membriData = [];
+        let depcredData = [];
+        let currentMember = null;
+        let selectedDropdownIndex = -1;
+        
+        // Rata dobânzii din codul Python
+        const LOAN_INTEREST_RATE = 0.004;
+
+        // Detectare iOS pentru optimizări specifice
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        // Inițializare aplicație
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            
+            // Ascunde instrucțiunile PWA după 10 secunde
+            setTimeout(() => {
+                const pwaInstall = document.getElementById('pwaInstall');
+                if (pwaInstall) {
+                    pwaInstall.style.display = 'none';
+                }
+            }, 10000);
+        });
+
+        // Inițializare aplicație
+        async function initializeApp() {
+            try {
+                updateStatus('Încărcare SQL.js...', 'loading');
+                
+                if (isIOS) {
+                    // Pentru iOS, încearcă să încarce SQL.js cu timeout
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout')), 10000)
+                    );
+                    
+                    const loadPromise = loadSQLJS();
+                    
+                    try {
+                        await Promise.race([loadPromise, timeoutPromise]);
+                    } catch (error) {
+                        console.warn('SQL.js nu s-a încărcat, folosind mod simplificat:', error);
+                        enableSimplifiedMode();
+                        return;
+                    }
+                } else {
+                    await loadSQLJS();
+                }
+                
+                updateStatus('✅ SQL.js încărcat! Selectați fișierele .db', 'success');
+                enableFileInputs();
+                
+            } catch (error) {
+                console.error('Eroare inițializare:', error);
+                updateStatus('⚠️ Eroare încărcare. Folosind mod simplificat.', 'error');
+                enableSimplifiedMode();
+            }
+        }
+
+        // Încărcare SQL.js
+        async function loadSQLJS() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js';
+                script.onload = async function() {
+                    try {
+                        SQL = await initSqlJs({
+                            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+                        });
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                script.onerror = () => reject(new Error('Nu s-a putut încărca SQL.js'));
+                document.head.appendChild(script);
+            });
+        }
+
+        // Activează mod simplificat (fără SQL.js)
+        function enableSimplifiedMode() {
+            updateStatus('⚠️ SQL.js nu s-a încărcat. Reîncărcați pagina.', 'error');
+            // Totuși activează butoanele pentru că utilizatorul poate avea browser care nu suportă SQL.js
+            document.getElementById('membriFile').disabled = false;
+            document.getElementById('depcredFile').disabled = false;
+        }
+
+        // Activează input-urile pentru fișiere
+        function enableFileInputs() {
+            document.getElementById('membriFile').disabled = false;
+            document.getElementById('depcredFile').disabled = false;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('membriFile').addEventListener('change', handleMembriFile);
+            document.getElementById('depcredFile').addEventListener('change', handleDepcredFile);
+            document.getElementById('searchBtn').addEventListener('click', searchMember);
+            
+            // Auto-complete pentru search input
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearchInput);
+            searchInput.addEventListener('keydown', handleSearchKeydown);
+            searchInput.addEventListener('blur', hideAutocomplete);
+            
+            document.getElementById('calculateBtn').addEventListener('click', calculateInterest);
+            document.getElementById('resetBtn').addEventListener('click', resetSearch);
+            
+            // Click pe body pentru a ascunde dropdown
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !document.getElementById('autocompleteDropdown').contains(e.target)) {
+                    hideAutocomplete();
+                }
+            });
+        }
+
+        // Auto-complete pentru search input
+        function handleSearchInput(e) {
+            const searchText = e.target.value.trim();
+            
+            // Afișează dropdown doar după 2+ caractere
+            if (searchText.length >= 2 && membriData.length > 0) {
+                showAutocomplete(searchText);
+            } else {
+                hideAutocomplete();
+            }
+        }
+
+        // Navigare cu tastatura în dropdown
+        function handleSearchKeydown(e) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            const items = dropdown.querySelectorAll('.autocomplete-item');
+            
+            if (dropdown.style.display === 'none' || items.length === 0) {
+                if (e.key === 'Enter') {
+                    searchMember();
+                }
+                return;
+            }
+            
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedDropdownIndex = Math.min(selectedDropdownIndex + 1, items.length - 1);
+                    updateDropdownSelection(items);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedDropdownIndex = Math.max(selectedDropdownIndex - 1, -1);
+                    updateDropdownSelection(items);
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedDropdownIndex >= 0 && selectedDropdownIndex < items.length) {
+                        selectDropdownItem(items[selectedDropdownIndex]);
+                    } else {
+                        searchMember();
+                    }
+                    break;
+                case 'Escape':
+                    hideAutocomplete();
+                    break;
+            }
+        }
+
+        // Afișează dropdown cu sugestii (exact ca în Python)
+        function showAutocomplete(searchText) {
+            const searchLower = searchText.toLowerCase();
+            
+            // EXACT CA ÎN PYTHON: caută nume care ÎNCEP cu prefixul (nu conțin oriunde)
+            const matches = membriData.filter(member => 
+                member.NUM_PREN && member.NUM_PREN.toLowerCase().startsWith(searchLower)
+            ).sort((a, b) => a.NUM_PREN.localeCompare(b.NUM_PREN)) // Sortare alfabetică
+            .slice(0, 50); // Limită la 50 rezultate ca în Python
+            
+            const dropdown = document.getElementById('autocompleteDropdown');
+            
+            if (matches.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+            
+            dropdown.innerHTML = '';
+            selectedDropdownIndex = -1;
+            
+            matches.forEach((member, index) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                
+                // FORMAT EXACT CA ÎN PYTHON: "NUME PRENUME (F: NR_FISA)"
+                const displayText = `${member.NUM_PREN} (F: ${member.NR_FISA})`;
+                item.innerHTML = `<div class="member-name">${displayText}</div>`;
+                
+                item.addEventListener('click', function() {
+                    selectDropdownItem(item);
+                });
+                
+                // Stochează datele membrului și textul pentru afișare
+                item.memberData = member;
+                item.displayText = displayText;
+                dropdown.appendChild(item);
+            });
+            
+            dropdown.style.display = 'block';
+        }
+
+        // Ascunde dropdown
+        function hideAutocomplete() {
+            setTimeout(() => {
+                document.getElementById('autocompleteDropdown').style.display = 'none';
+                selectedDropdownIndex = -1;
+            }, 100);
+        }
+
+        // Actualizează selecția vizuală în dropdown
+        function updateDropdownSelection(items) {
+            items.forEach((item, index) => {
+                if (index === selectedDropdownIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        // Selectează un item din dropdown
+        function selectDropdownItem(item) {
+            const member = item.memberData;
+            const displayText = item.displayText; // Format: "NUME PRENUME (F: NR_FISA)"
+            
+            document.getElementById('searchInput').value = displayText;
+            hideAutocomplete();
+            
+            // Încarcă automat membrul selectat
+            loadMemberFinancialData(member);
+        }
+
+        // Încărcare fișier MEMBRII.db
+        async function handleMembriFile(event) {
+            const file = event.target.files[0];
+            if (file && SQL) {
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const uInt8Array = new Uint8Array(arrayBuffer);
+                    const db = new SQL.Database(uInt8Array);
+                    
+                    // Extrage datele din baza de date
+                    const stmt = db.prepare('SELECT * FROM membrii ORDER BY NUM_PREN');
+                    membriData = [];
+                    while (stmt.step()) {
+                        membriData.push(stmt.getAsObject());
+                    }
+                    stmt.free();
+                    db.close();
+                    
+                    showSuccess(`MEMBRII.db încărcat cu succes (${membriData.length} membri)`);
+                    checkFileUploadReady();
+                } catch (error) {
+                    showError('Eroare la încărcarea MEMBRII.db: ' + error.message);
+                    console.error('Eroare MEMBRII.db:', error);
+                }
+            } else if (file && !SQL) {
+                showError('SQL.js nu este încărcat. Reîncărcați pagina.');
+            }
+        }
+
+        // Încărcare fișier DEPCRED.db
+        async function handleDepcredFile(event) {
+            const file = event.target.files[0];
+            if (file && SQL) {
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const uInt8Array = new Uint8Array(arrayBuffer);
+                    const db = new SQL.Database(uInt8Array);
+                    
+                    // Extrage datele din baza de date
+                    const stmt = db.prepare('SELECT * FROM depcred ORDER BY ANUL DESC, LUNA DESC');
+                    depcredData = [];
+                    while (stmt.step()) {
+                        depcredData.push(stmt.getAsObject());
+                    }
+                    stmt.free();
+                    db.close();
+                    
+                    showSuccess(`DEPCRED.db încărcat cu succes (${depcredData.length} înregistrări)`);
+                    checkFileUploadReady();
+                } catch (error) {
+                    showError('Eroare la încărcarea DEPCRED.db: ' + error.message);
+                    console.error('Eroare DEPCRED.db:', error);
+                }
+            } else if (file && !SQL) {
+                showError('SQL.js nu este încărcat. Reîncărcați pagina.');
+            }
+        }
+
+        // Verifică dacă ambele seturi de date sunt încărcate
+        function checkIfReady() {
+            if (membriData.length > 0 && depcredData.length > 0) {
+                document.getElementById('searchInput').disabled = false;
+                document.getElementById('searchBtn').disabled = false;
+                updateStatus('🎉 Date încărcate! Puteți căuta membri.', 'success');
+                document.getElementById('fileUpload').classList.add('ready');
+            }
+        }
+
+        // Verifică dacă ambele baze sunt încărcate prin file upload
+        function checkFileUploadReady() {
+            if (membriData.length > 0 && depcredData.length > 0) {
+                document.getElementById('searchInput').disabled = false;
+                document.getElementById('searchBtn').disabled = false;
+                updateStatus('🎉 Baze de date încărcate! Puteți căuta membri.', 'success');
+                document.getElementById('fileUpload').classList.add('ready');
+            }
+        }
+
+        // Căutare membru (revenire la versiunea funcțională)
+        function searchMember() {
+            const searchText = document.getElementById('searchInput').value.trim();
+            
+            if (!searchText) {
+                showError('Introduceți numele membrului');
+                return;
+            }
+
+            if (membriData.length === 0 || depcredData.length === 0) {
+                showError('Încărcați mai întâi bazele de date');
+                return;
+            }
+
+            showLoading(true);
+            hideCards();
+            hideAutocomplete();
+
+            // Simulează delay pentru UX
+            setTimeout(() => {
+                try {
+                    // Căutare în datele încărcate - suportă ambele formate
+                    const searchLower = searchText.toLowerCase();
+                    let found = null;
+                    
+                    // Verifică dacă textul e în format "NUME PRENUME (F: NR_FISA)"
+                    const fiساMatch = searchText.match(/^(.+?)\s*\(F:\s*(\d+)\)$/);
+                    
+                    if (fiساMatch) {
+                        // Caută după numărul fisei din format
+                        const nrFisa = parseInt(fiساMatch[2]);
+                        found = membriData.find(member => member.NR_FISA === nrFisa);
+                    }
+                    
+                    // Dacă nu s-a găsit cu formatul sau nu e în format, caută normal
+                    if (!found) {
+                        found = membriData.find(member => 
+                            member.NUM_PREN && member.NUM_PREN.toLowerCase().includes(searchLower)
+                        );
+                    }
+                    
+                    if (!found) {
+                        showError('Nu s-a găsit niciun membru cu acest nume');
+                        showLoading(false);
+                        return;
+                    }
+
+                    loadMemberFinancialData(found);
+                } catch (error) {
+                    showError('Eroare la căutare: ' + error.message);
+                    showLoading(false);
+                }
+            }, 500);
+        }
+
+        // Încarcă datele financiare ale membrului cu logica îmbunătățită
+        function loadMemberFinancialData(member) {
+            try {
+                // Ia datele financiare pentru acest membru, sortate descrescător
+                const memberFinancials = depcredData.filter(record => 
+                    record.NR_FISA === member.NR_FISA
+                ).sort((a, b) => {
+                    const periodA = a.ANUL * 100 + a.LUNA;
+                    const periodB = b.ANUL * 100 + b.LUNA;
+                    return periodB - periodA; // Descrescător
+                });
+
+                // LOGICA ÎMBUNĂTĂȚITĂ: Găsește cel mai recent împrumut activ (cu sold > 0)
+                let activeRecord = null;
+                for (const record of memberFinancials) {
+                    if ((record.IMPR_SOLD || 0) > 0) {
+                        activeRecord = record;
+                        break; // Prima înregistrare cu sold > 0 (cea mai recentă)
+                    }
+                }
+
+                currentMember = {
+                    ...member,
+                    lastRecord: activeRecord, // Cea mai recentă cu sold > 0
+                    currentLoan: activeRecord ? (activeRecord.IMPR_SOLD || 0) : 0,
+                    financialHistory: memberFinancials
+                };
+
+                displayMember(currentMember);
+                showLoading(false);
+
+            } catch (error) {
+                showError('Eroare la încărcarea datelor financiare: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        // Afișează datele membrului
+        function displayMember(member) {
+            document.getElementById('memberName').textContent = '👤 ' + member.NUM_PREN;
+            document.getElementById('memberFisa').textContent = '📋 Fișa: ' + member.NR_FISA;
+            document.getElementById('memberAddress').textContent = '🏠 ' + (member.DOMICILIUL || 'N/A');
+            document.getElementById('memberDate').textContent = '📅 Înscris: ' + (member.DATA_INSCR || 'N/A');
+            
+            const memberCard = document.getElementById('memberCard');
+            const loanInfo = document.getElementById('loanInfo');
+            const noLoan = document.getElementById('noLoan');
+            
+            memberCard.style.display = 'block';
+            
+            if (member.currentLoan > 0) {
+                const activeMonth = member.lastRecord ? 
+                    `${member.lastRecord.LUNA.toString().padStart(2, '0')}-${member.lastRecord.ANUL}` : '';
+                document.getElementById('loanAmount').textContent = 
+                    `💰 Sold împrumut: ${member.currentLoan.toFixed(2)} lei ${activeMonth ? '(' + activeMonth + ')' : ''}`;
+                loanInfo.style.display = 'block';
+                noLoan.style.display = 'none';
+            } else {
+                loanInfo.style.display = 'none';
+                noLoan.style.display = 'block';
+            }
+            
+            // Afișează istoricul financiar
+            displayHistory(member.financialHistory || []);
+        }
+
+        // Afișează istoricul financiar - format tabel cu toate coloanele
+        function displayHistory(history) {
+            const historyCard = document.getElementById('historyCard');
+            const historyTableBody = document.getElementById('historyTableBody');
+            
+            // Curăță tabelul existent
+            historyTableBody.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyTableBody.innerHTML = '<tr><td colspan="5">Nu există istoric disponibil</td></tr>';
+                historyCard.style.display = 'block';
+                return;
+            }
+            
+            // Sortează istoricul cronologic invers (cel mai recent primul) - ca în Python
+            const sortedHistory = [...history].sort((a, b) => {
+                const periodA = a.ANUL * 100 + a.LUNA;
+                const periodB = b.ANUL * 100 + b.LUNA;
+                return periodB - periodA;
+            });
+            
+            // Procesează fiecare înregistrare și aplică formatările din Python
+            sortedHistory.slice(0, 24).forEach((record, index) => {
+                const formattedData = formatHistoryRecord(record, history, currentMember.NR_FISA);
+                
+                const row = document.createElement('tr');
+                
+                // Dobândă
+                const dobandaCell = document.createElement('td');
+                dobandaCell.innerHTML = formattedData.dobanda;
+                row.appendChild(dobandaCell);
+                
+                // Împrumut
+                const imprDebCell = document.createElement('td');
+                imprDebCell.innerHTML = formattedData.impr_deb;
+                row.appendChild(imprDebCell);
+                
+                // Rată
+                const imprCredCell = document.createElement('td');
+                imprCredCell.innerHTML = formattedData.impr_cred;
+                row.appendChild(imprCredCell);
+                
+                // Sold
+                const imprSoldCell = document.createElement('td');
+                imprSoldCell.innerHTML = formattedData.impr_sold;
+                row.appendChild(imprSoldCell);
+                
+                // Dată
+                const lunaAnCell = document.createElement('td');
+                lunaAnCell.innerHTML = formattedData.luna_an;
+                row.appendChild(lunaAnCell);
+                
+                historyTableBody.appendChild(row);
+            });
+            
+            historyCard.style.display = 'block';
+            
+            // Scroll către istoric
+            setTimeout(() => {
+                historyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+
+        // Formatează o înregistrare conform logicii din Python
+        function formatHistoryRecord(record, fullHistory, nrFisa) {
+            const dobanda = record.DOBANDA || 0;
+            const imprDeb = record.IMPR_DEB || 0;
+            const imprCred = record.IMPR_CRED || 0;
+            const imprSold = record.IMPR_SOLD || 0;
+            const luna = record.LUNA || 0;
+            const anul = record.ANUL || 0;
+            
+            let formatted = {
+                dobanda: dobanda.toFixed(2),
+                impr_deb: imprDeb.toFixed(2),
+                impr_cred: imprCred.toFixed(2),
+                impr_sold: imprSold.toFixed(2),
+                luna_an: `${luna.toString().padStart(2, '0')}-${anul}`
+            };
+            
+            // FORMATĂRI IDENTICE CU PYTHON:
+            
+            // 1. Împrumut nou (impr_deb > 0) - albastru bold
+            if (imprDeb > 0) {
+                formatted.impr_deb = `<span class="blue-text">${imprDeb.toFixed(2)}</span>`;
+            }
+            
+            // 2. Verificare pentru achitare împrumut - când există dobândă
+            if (dobanda > 0) {
+                formatted.impr_sold = '<span class="green-text">Achitat</span>';
+            }
+            
+            // 3. Situație rată neachitată
+            if (imprSold > 0.005 && imprCred === 0) {
+                // Nu afișăm formatare pentru luna în care se ia împrumutul
+                if (imprDeb === 0) {
+                    // Verificăm dacă este prima lună după acordarea împrumutului
+                    const currentPeriod = anul * 100 + luna;
+                    const prevPeriod = luna > 1 ? anul * 100 + (luna - 1) : (anul - 1) * 100 + 12;
+                    
+                    // Caută în istoricul complet dacă luna anterioară a avut împrumut acordat
+                    const prevRecord = fullHistory.find(r => (r.ANUL * 100 + r.LUNA) === prevPeriod);
+                    
+                    if (prevRecord && (prevRecord.IMPR_DEB || 0) > 0) {
+                        // Prima lună după împrumut - portocaliu "!NOU!"
+                        formatted.impr_cred = '<span class="orange-text">!NOU!</span>';
+                    } else {
+                        // Luna ulterioară - roșu "Neachitat!"
+                        formatted.impr_cred = '<span class="red-text">Neachitat!</span>';
+                    }
+                }
+            }
+            
+            // 4. Situație specială: Lichidat (când soldul este 0)
+            if (imprSold === 0) {
+                // Verifică dacă a fost un împrumut înainte
+                const hasHistoryWithLoan = fullHistory.some(r => 
+                    (r.ANUL * 100 + r.LUNA) < (anul * 100 + luna) && (r.IMPR_SOLD || 0) > 0
+                );
+                
+                if (hasHistoryWithLoan) {
+                    formatted.impr_sold = '<span class="grey-text">Lichidat</span>';
+                }
+            }
+            
+            return formatted;
+        }
+
+        // Calculează dobânda - EXACT ca metoda _calculeaza_dobanda_la_zi_robust din Python
+        function calculateInterest() {
+            if (!currentMember || !currentMember.lastRecord || currentMember.currentLoan <= 0) {
+                showError('Membrul nu are împrumut activ');
+                return;
+            }
+
+            showLoading(true);
+
+            setTimeout(() => {
+                try {
+                    const nrFisa = currentMember.NR_FISA;
+                    const endLuna = currentMember.lastRecord.LUNA;
+                    const endAnul = currentMember.lastRecord.ANUL;
+                    const endPeriodVal = endAnul * 100 + endLuna;
+                    
+                    const history = currentMember.financialHistory || [];
+                    let startPeriodVal = 0;
+
+                    console.log(`Începere calcul dobândă pentru ${nrFisa} -> ${endLuna.toString().padStart(2, '0')}-${endAnul}`);
+
+                    // PASUL 1: Găsește ultima lună cu împrumut nou acordat (IMPR_DEB > 0)
+                    // SAU cu caz special (DOBANDA > 0 și IMPR_DEB > 0 în aceeași lună)
+                    let lastDisbursement = null;
+                    for (const record of history) {
+                        const recordPeriod = record.ANUL * 100 + record.LUNA;
+                        const imprDeb = record.IMPR_DEB || 0;
+                        const dobanda = record.DOBANDA || 0;
+                        
+                        // Verifică împrumut nou SAU caz special (dobândă + împrumut nou)
+                        if (imprDeb > 0 && recordPeriod <= endPeriodVal) {
+                            // Dacă are și dobândă > 0, este început de ciclu nou
+                            if (dobanda > 0) {
+                                console.log(`Caz special detectat în ${Math.floor(recordPeriod/100)}-${(recordPeriod%100).toString().padStart(2, '0')}: DOBANDA=${dobanda}, IMPR_DEB=${imprDeb}`);
+                            }
+                            if (!lastDisbursement || recordPeriod > lastDisbursement) {
+                                lastDisbursement = recordPeriod;
+                            }
+                        }
+                    }
+                    
+                    console.log(`Ultimul împrumut acordat găsit: ${lastDisbursement ? Math.floor(lastDisbursement/100) + '-' + (lastDisbursement%100).toString().padStart(2, '0') : 'NONE'}`);
+
+                    if (lastDisbursement) {
+                        // Verifică dacă ultima lună cu împrumut are și dobândă (caz special)
+                        let isSpecialCase = false;
+                        const lastDisbRecord = history.find(r => (r.ANUL * 100 + r.LUNA) === lastDisbursement);
+                        if (lastDisbRecord && (lastDisbRecord.DOBANDA || 0) > 0 && (lastDisbRecord.IMPR_DEB || 0) > 0) {
+                            isSpecialCase = true;
+                            console.log(`Caz special confirmat: ciclu nou de împrumut începe în ${Math.floor(lastDisbursement/100)}-${(lastDisbursement%100).toString().padStart(2, '0')}`);
+                        }
+                        
+                        if (isSpecialCase) {
+                            // Pentru cazul special, începe direct de la această lună
+                            startPeriodVal = lastDisbursement;
+                            console.log(`Start = luna cu caz special: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
+                        } else {
+                            // PASUL 2: Găsește ultima lună cu sold zero înaintea ultimului împrumut
+                            let lastZero = null;
+                            for (const record of history) {
+                                const recordPeriod = record.ANUL * 100 + record.LUNA;
+                                const imprSold = record.IMPR_SOLD || 0;
+                                
+                                if (imprSold <= 0.005 && recordPeriod < lastDisbursement) {
+                                    if (!lastZero || recordPeriod > lastZero) {
+                                        lastZero = recordPeriod;
+                                    }
+                                }
+                            }
+                            
+                            console.log(`Ultimul sold zero găsit: ${lastZero ? Math.floor(lastZero/100) + '-' + (lastZero%100).toString().padStart(2, '0') : 'NONE'}`);
+
+                            if (lastZero) {
+                                // PASUL 3: Determină luna următoare după ultimul sold zero
+                                const cyZ = Math.floor(lastZero / 100);
+                                const cmZ = lastZero % 100;
+                                const startPTemp = cmZ === 12 ? (cyZ + 1) * 100 + 1 : cyZ * 100 + (cmZ + 1);
+                                startPeriodVal = Math.min(startPTemp, lastDisbursement);
+                                
+                                console.log(`Start calculat ca luna următoare după sold zero: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
+                            } else {
+                                // PASUL 4: Caută primul împrumut acordat
+                                let firstLoan = null;
+                                for (const record of history) {
+                                    const recordPeriod = record.ANUL * 100 + record.LUNA;
+                                    const imprDeb = record.IMPR_DEB || 0;
+                                    
+                                    if (imprDeb > 0.005) {
+                                        if (!firstLoan || recordPeriod < firstLoan) {
+                                            firstLoan = recordPeriod;
+                                        }
+                                    }
+                                }
+                                
+                                // Folosește primul împrumut sau ultimul acordat, care e mai mic
+                                if (firstLoan && firstLoan <= lastDisbursement) {
+                                    startPeriodVal = firstLoan;
+                                    console.log(`Start = primul împrumut: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
+                                } else {
+                                    startPeriodVal = lastDisbursement;
+                                    console.log(`Start = ultimul împrumut acordat: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
+                                }
+                            }
+                        }
+                    } else if (endPeriodVal > 0) {
+                        // PASUL 5: Dacă nu există împrumut acordat, folosim prima înregistrare
+                        let firstEver = null;
+                        for (const record of history) {
+                            const recordPeriod = record.ANUL * 100 + record.LUNA;
+                            
+                            if (recordPeriod <= endPeriodVal) {
+                                if (!firstEver || recordPeriod < firstEver) {
+                                    firstEver = recordPeriod;
+                                }
+                            }
+                        }
+                        
+                        if (firstEver) {
+                            startPeriodVal = firstEver;
+                            console.log(`Start = prima înregistrare: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
+                        }
+                    }
+
+                    // PASUL 6: Verifică dacă avem o perioadă de start validă
+                    if (!startPeriodVal || startPeriodVal > endPeriodVal) {
+                        throw new Error('Nu s-a putut determina startul împrumutului');
+                    }
+
+                    // PASUL 7: Calcul dobândă pe baza soldurilor din perioada determinată
+                    let sumOfBalances = 0;
+                    let includedPeriods = [];
+                    
+                    for (const record of history) {
+                        const recordPeriod = record.ANUL * 100 + record.LUNA;
+                        const imprSold = record.IMPR_SOLD || 0;
+                        
+                        if (recordPeriod >= startPeriodVal && recordPeriod <= endPeriodVal && imprSold > 0) {
+                            sumOfBalances += imprSold;
+                            includedPeriods.push(`${Math.floor(recordPeriod/100)}-${(recordPeriod%100).toString().padStart(2, '0')}: ${imprSold.toFixed(2)}`);
+                        }
+                    }
+
+                    if (sumOfBalances === 0) {
+                        throw new Error('Nu există solduri pozitive în perioada specificată');
+                    }
+
+                    // PASUL 8: Aplică formula dobânzii EXACT ca în Python
+                    const calculatedInterest = Math.round((sumOfBalances * LOAN_INTEREST_RATE) * 100) / 100;
+                    
+                    const startYear = Math.floor(startPeriodVal / 100);
+                    const startMonth = startPeriodVal % 100;
+                    
+                    console.log(`CALCUL DOBÂNDĂ FINALIZAT (METODA PYTHON):
+                        Start: ${startMonth.toString().padStart(2, '0')}-${startYear}
+                        End: ${endLuna.toString().padStart(2, '0')}-${endAnul}
+                        Perioade incluse: ${includedPeriods.join(', ')}
+                        Suma soldurilor: ${sumOfBalances.toFixed(2)}
+                        Dobândă calculată: ${calculatedInterest.toFixed(2)}`);
+                    
+                    displayResult({
+                        interest: calculatedInterest,
+                        currentLoan: currentMember.currentLoan,
+                        totalPayment: currentMember.currentLoan, // Nu mai adăugăm dobânda
+                        period: `${startMonth.toString().padStart(2, '0')}-${startYear} → ${endLuna.toString().padStart(2, '0')}-${endAnul}`,
+                        sumOfBalances: sumOfBalances
+                    });
+
+                    showLoading(false);
+
+                } catch (error) {
+                    showError('Eroare la calculul dobânzii: ' + error.message);
+                    showLoading(false);
+                    console.error('Eroare calculare dobândă:', error);
+                }
+            }, 1000);
+        }
+
+        // Afișează rezultatul calculului
+        function displayResult(result) {
+            document.getElementById('interestValue').textContent = result.interest.toFixed(2) + ' lei';
+            document.getElementById('currentLoanValue').textContent = result.currentLoan.toFixed(2) + ' lei';
+            document.getElementById('periodValue').textContent = result.period;
+            document.getElementById('sumValue').textContent = result.sumOfBalances.toFixed(2) + ' lei';
+            document.getElementById('totalPayment').textContent = result.totalPayment.toFixed(2) + ' lei';
+            
+            document.getElementById('resultCard').style.display = 'block';
+            
+            // Scroll către rezultat
+            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Reset căutare
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            currentMember = null;
+            hideCards();
+            hideMessages();
+            hideAutocomplete();
+        }
+
+        // Funcții helper
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function hideCards() {
+            document.getElementById('memberCard').style.display = 'none';
+            document.getElementById('historyCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = 'upload-status status-' + type;
+        }
+
+        // Register service worker pentru PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                // Service worker inline pentru PWA simplu
+                const swCode = `
+                    self.addEventListener('install', function(event) {
+                        self.skipWaiting();
+                    });
+                    
+                    self.addEventListener('activate', function(event) {
+                        event.waitUntil(self.clients.claim());
+                    });
+                    
+                    self.addEventListener('fetch', function(event) {
+                        // Permite toate request-urile să treacă prin
+                        event.respondWith(fetch(event.request));
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(function(registration) {
+                        console.log('Service Worker înregistrat cu succes');
+                    })
+                    .catch(function(error) {
+                        console.log('Eroare Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
