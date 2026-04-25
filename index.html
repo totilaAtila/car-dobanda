@@ -752,9 +752,6 @@
                     </div>
                 </div>
 
-                <div id="idbRestoreBox" style="display:none; margin-top:12px; text-align:center;">
-                    <button id="idbRestoreBtn" class="calculate-btn" style="font-size:13px; padding:10px 18px; width:100%;"></button>
-                </div>
 
                 <div class="upload-status status-loading" id="uploadStatus">
                     Încărcare SQL.js...
@@ -963,10 +960,7 @@
                 }
                 
                 enableFileInputs();
-                const restored = await tryRestoreFromIDB();
-                if (!restored) {
-                    updateStatus('✅ SQL.js încărcat! Selectați fișierele .db', 'success');
-                }
+                updateStatus('✅ SQL.js încărcat! Selectați fișierele .db', 'success');
                 
             } catch (error) {
                 console.error('Eroare inițializare:', error);
@@ -1154,69 +1148,6 @@
         }
 
         // Încărcare fișier MEMBRII.db
-        // ── IndexedDB: persistență date între sesiuni ───────────────────────
-        const IDB_NAME    = 'car-dobanda';
-        const IDB_STORE   = 'dbcache';
-        const IDB_VERSION = 1;
-
-        function idbOpen() {
-            return new Promise((resolve, reject) => {
-                const req = indexedDB.open(IDB_NAME, IDB_VERSION);
-                req.onupgradeneeded = e => e.target.result.createObjectStore(IDB_STORE);
-                req.onsuccess = e => resolve(e.target.result);
-                req.onerror  = e => reject(e.target.error);
-            });
-        }
-
-        async function idbSave(key, value) {
-            const db = await idbOpen();
-            return new Promise((resolve, reject) => {
-                const tx  = db.transaction(IDB_STORE, 'readwrite');
-                tx.objectStore(IDB_STORE).put(value, key);
-                tx.oncomplete = resolve;
-                tx.onerror    = e => reject(e.target.error);
-            });
-        }
-
-        async function idbLoad(key) {
-            const db = await idbOpen();
-            return new Promise((resolve, reject) => {
-                const tx  = db.transaction(IDB_STORE, 'readonly');
-                const req = tx.objectStore(IDB_STORE).get(key);
-                req.onsuccess = e => resolve(e.target.result || null);
-                req.onerror   = e => reject(e.target.error);
-            });
-        }
-
-        async function tryRestoreFromIDB() {
-            try {
-                const savedMembri  = await idbLoad('membriData');
-                const savedDepcred = await idbLoad('depcredData');
-                const savedTs      = await idbLoad('savedAt');
-                if (savedMembri?.length > 0 && savedDepcred?.length > 0) {
-                    const tsLabel = savedTs
-                        ? new Date(savedTs).toLocaleString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
-                        : 'dată necunoscută';
-                    const box = document.getElementById('idbRestoreBox');
-                    const btn = document.getElementById('idbRestoreBtn');
-                    btn.textContent = `📂 Folosiți datele salvate (${tsLabel}, ${savedMembri.length} membri)`;
-                    btn.onclick = () => {
-                        membriData  = savedMembri;
-                        depcredData = savedDepcred;
-                        box.style.display = 'none';
-                        updateStatus(`📂 Date din ${tsLabel} încărcate. Puteți căuta.`, 'success');
-                        checkFileUploadReady();
-                    };
-                    box.style.display = 'block';
-                    return true;
-                }
-            } catch (e) {
-                console.warn('Nu s-au putut citi datele din IDB:', e);
-            }
-            return false;
-        }
-        // ────────────────────────────────────────────────────────────────────
-
         // Încărcare fișier MEMBRII.db
         async function handleMembriFile(event) {
             const file = event.target.files[0];
@@ -1236,8 +1167,6 @@
                     db.close();
                     
                     showSuccess(`MEMBRII.db încărcat cu succes (${membriData.length} membri)`);
-                    await idbSave('membriData', membriData);
-                    await idbSave('savedAt', Date.now());
                     checkFileUploadReady();
                 } catch (error) {
                     showError('Eroare la încărcarea MEMBRII.db: ' + error.message);
@@ -1267,7 +1196,6 @@
                     db.close();
                     
                     showSuccess(`DEPCRED.db încărcat cu succes (${depcredData.length} înregistrări)`);
-                    await idbSave('depcredData', depcredData);
                     checkFileUploadReady();
                 } catch (error) {
                     showError('Eroare la încărcarea DEPCRED.db: ' + error.message);
