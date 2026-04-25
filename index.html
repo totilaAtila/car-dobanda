@@ -454,11 +454,55 @@
             text-align: center;
         }
 
-        .history-table-wrapper {
-            max-height: 400px;
-            overflow-y: auto;
+        .history-swipe-container {
+            overflow: hidden;
+            width: 100%;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .history-swipe-track {
+            display: flex;
+            transition: transform 0.35s ease;
+        }
+
+        .history-view {
+            min-width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .swipe-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .swipe-indicator .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.18);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .swipe-indicator .dot.active {
+            background: #d63384;
+            transform: scale(1.3);
+        }
+
+        .swipe-tab-label {
+            font-size: 11px;
+            color: #888;
+            user-select: none;
+        }
+
+        .swipe-tab-label.active {
+            color: #d63384;
+            font-weight: 600;
         }
 
         .history-table {
@@ -744,22 +788,44 @@
             </div>
 
             <div class="history-card" id="historyCard">
-                <div class="history-title">📊 Istoric Financiar - Situație Împrumuturi</div>
-                <div class="history-table-wrapper">
-                    <table class="history-table" id="historyTable">
-                        <thead>
-                            <tr>
-                                <th>Dobândă</th>
-                                <th>Împrumut</th>
-                                <th>Rată</th>
-                                <th>Sold</th>
-                                <th>Dată</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyTableBody">
-                            <!-- Datele se vor încărca dinamic -->
-                        </tbody>
-                    </table>
+                <div class="history-title">📊 Istoric Financiar</div>
+                <div class="swipe-indicator">
+                    <span class="swipe-tab-label active" id="swipeLabel0">Împrumuturi</span>
+                    <span class="dot active" data-view="0"></span>
+                    <span class="dot" data-view="1"></span>
+                    <span class="swipe-tab-label" id="swipeLabel1">Depuneri</span>
+                </div>
+                <div class="history-swipe-container" id="historySwipeContainer">
+                    <div class="history-swipe-track" id="historySwipeTrack">
+                        <div class="history-view" id="historyView0">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dobândă</th>
+                                        <th>Împrumut</th>
+                                        <th>Rată</th>
+                                        <th>Sold</th>
+                                        <th>Dată</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="history-view" id="historyView1">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cotizație</th>
+                                        <th>Retr. FS</th>
+                                        <th>Sold dep.</th>
+                                        <th></th>
+                                        <th>Dată</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBodyDep"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -810,9 +876,41 @@
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
         // Inițializare aplicație
+        // Swipe lateral între view-urile de istoric
+        let _historyActiveView = 0;
+        function switchHistoryView(n) {
+            _historyActiveView = n;
+            const track = document.getElementById('historySwipeTrack');
+            const dots  = document.querySelectorAll('.swipe-indicator .dot');
+            const lbl0  = document.getElementById('swipeLabel0');
+            const lbl1  = document.getElementById('swipeLabel1');
+            if (track) track.style.transform = `translateX(-${n * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === n));
+            if (lbl0) lbl0.classList.toggle('active', n === 0);
+            if (lbl1) lbl1.classList.toggle('active', n === 1);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
             setupEventListeners();
+
+            // Dot clicks
+            document.querySelectorAll('.swipe-indicator .dot').forEach((dot, i) => {
+                dot.addEventListener('click', () => switchHistoryView(i));
+            });
+
+            // Touch swipe
+            const swipeContainer = document.getElementById('historySwipeContainer');
+            if (swipeContainer) {
+                let _touchStartX = 0;
+                swipeContainer.addEventListener('touchstart', e => {
+                    _touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+                swipeContainer.addEventListener('touchend', e => {
+                    const delta = _touchStartX - e.changedTouches[0].clientX;
+                    if (Math.abs(delta) > 40) switchHistoryView(delta > 0 ? 1 : 0);
+                }, { passive: true });
+            }
             
             // Ascunde instrucțiunile PWA după 10 secunde
             setTimeout(() => {
@@ -1236,83 +1334,82 @@
         function displayHistory(history) {
             const historyCard = document.getElementById('historyCard');
             const historyTableBody = document.getElementById('historyTableBody');
-            
-            // Curăță tabelul existent
+            const historyTableBodyDep = document.getElementById('historyTableBodyDep');
+
             historyTableBody.innerHTML = '';
-            
+            historyTableBodyDep.innerHTML = '';
+
             if (history.length === 0) {
                 historyTableBody.innerHTML = '<tr><td colspan="5">Nu există istoric disponibil</td></tr>';
+                historyTableBodyDep.innerHTML = '<tr><td colspan="5">Nu există istoric disponibil</td></tr>';
                 historyCard.style.display = 'block';
                 return;
             }
-            
-            // Sortează istoricul cronologic invers (cel mai recent primul) - ca în Python
+
+            // Sortează cronologic invers (cel mai recent primul)
             const sortedHistory = [...history].sort((a, b) => {
                 const periodA = a.ANUL * 100 + a.LUNA;
                 const periodB = b.ANUL * 100 + b.LUNA;
                 return periodB - periodA;
             });
-            
-            // Procesează fiecare înregistrare și aplică formatările din Python
+
             sortedHistory.forEach((record, index) => {
-                // sold_impr_prec = soldul lunii anterioare (cronologic) = next item în lista descendentă
                 const prevChronRecord = sortedHistory[index + 1];
                 const soldImprPrec = prevChronRecord ? (prevChronRecord.IMPR_SOLD || 0) : 0;
-                const formattedData = formatHistoryRecord(record, history, currentMember.NR_FISA, soldImprPrec);
-                
-                const row = document.createElement('tr');
-                
-                // Dobândă
-                const dobandaCell = document.createElement('td');
-                dobandaCell.innerHTML = formattedData.dobanda;
-                row.appendChild(dobandaCell);
-                
-                // Împrumut
-                const imprDebCell = document.createElement('td');
-                imprDebCell.innerHTML = formattedData.impr_deb;
-                row.appendChild(imprDebCell);
-                
-                // Rată
-                const imprCredCell = document.createElement('td');
-                imprCredCell.innerHTML = formattedData.impr_cred;
-                row.appendChild(imprCredCell);
-                
-                // Sold
-                const imprSoldCell = document.createElement('td');
-                imprSoldCell.innerHTML = formattedData.impr_sold;
-                row.appendChild(imprSoldCell);
-                
-                // Dată
-                const lunaAnCell = document.createElement('td');
-                lunaAnCell.innerHTML = formattedData.luna_an;
-                row.appendChild(lunaAnCell);
-                
-                historyTableBody.appendChild(row);
+                const soldDepPrec  = prevChronRecord ? (prevChronRecord.DEP_SOLD  || 0) : 0;
+                const f = formatHistoryRecord(record, history, currentMember.NR_FISA, soldImprPrec, soldDepPrec);
+
+                // Rândul tabelului Împrumuturi
+                const rowL = document.createElement('tr');
+                ['dobanda', 'impr_deb', 'impr_cred', 'impr_sold', 'luna_an'].forEach(field => {
+                    const td = document.createElement('td');
+                    td.innerHTML = f[field];
+                    rowL.appendChild(td);
+                });
+                historyTableBody.appendChild(rowL);
+
+                // Rândul tabelului Depuneri
+                const rowD = document.createElement('tr');
+                ['dep_deb', 'dep_cred', 'dep_sold', 'empty', 'luna_an'].forEach(field => {
+                    const td = document.createElement('td');
+                    td.innerHTML = field === 'empty' ? '' : f[field];
+                    rowD.appendChild(td);
+                });
+                historyTableBodyDep.appendChild(rowD);
             });
-            
+
             historyCard.style.display = 'block';
-            
-            // Scroll către istoric
+
+            // Resetează la view-ul de împrumuturi la fiecare încărcare nouă
+            switchHistoryView(0);
+
             setTimeout(() => {
                 historyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 300);
         }
 
         // Formatează o înregistrare conform logicii din Python
-        function formatHistoryRecord(record, fullHistory, nrFisa, soldImprPrec) {
+        function formatHistoryRecord(record, fullHistory, nrFisa, soldImprPrec, soldDepPrec) {
             soldImprPrec = soldImprPrec || 0;
+            soldDepPrec = soldDepPrec || 0;
             const dobanda = record.DOBANDA || 0;
             const imprDeb = record.IMPR_DEB || 0;
             const imprCred = record.IMPR_CRED || 0;
             const imprSold = record.IMPR_SOLD || 0;
+            const depDeb = record.DEP_DEB || 0;
+            const depCred = record.DEP_CRED || 0;
+            const depSold = record.DEP_SOLD || 0;
             const luna = record.LUNA || 0;
             const anul = record.ANUL || 0;
-            
+
             let formatted = {
                 dobanda: dobanda.toFixed(2),
                 impr_deb: imprDeb.toFixed(2),
                 impr_cred: imprCred.toFixed(2),
                 impr_sold: imprSold.toFixed(2),
+                dep_deb: depDeb.toFixed(2),
+                dep_cred: depCred.toFixed(2),
+                dep_sold: depSold.toFixed(2),
                 luna_an: `${luna.toString().padStart(2, '0')}-${anul}`
             };
             
@@ -1372,7 +1469,12 @@
                     formatted.impr_sold = '<span class="green-text">Achitat</span>';
                 }
             }
-            
+
+            // 5. Formatare cotizație neachitată (identic Python)
+            if (depDeb === 0 && soldDepPrec > 0.005) {
+                formatted.dep_deb = '<span class="red-text">Neachitat!</span>';
+            }
+
             return formatted;
         }
 
