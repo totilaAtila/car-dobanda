@@ -463,6 +463,7 @@
 
         .history-table {
             width: 100%;
+            table-layout: fixed;
             border-collapse: collapse;
             background: rgba(255,255,255,0.4);
             font-family: 'Consolas', 'Courier New', monospace;
@@ -473,22 +474,25 @@
             top: 0;
             z-index: 1;
             background: rgba(230,240,255,0.97);
-            padding: 8px 4px;
-            font-size: 11px;
+            padding: 8px 2px;
+            font-size: clamp(9px, 2.5vw, 12px);
             font-weight: 600;
             text-align: center;
             color: #333;
             border: 1px solid #ccc;
-            min-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .history-table td {
-            padding: 6px 4px;
+            padding: 6px 2px;
             text-align: center;
-            font-size: 10px;
+            font-size: clamp(9px, 2.5vw, 11px);
             border: 1px solid rgba(255,255,255,0.3);
             font-family: 'Consolas', 'Courier New', monospace;
-            min-width: 60px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .history-table tr:nth-child(even) {
@@ -526,40 +530,12 @@
             .container {
                 max-width: 90vw;
             }
-            
-            .history-table {
-                font-size: 12px;
-            }
-            
-            .history-table th {
-                padding: 10px 6px;
-                font-size: 12px;
-                min-width: 80px;
-            }
-            
-            .history-table td {
-                padding: 8px 6px;
-                font-size: 11px;
-                min-width: 80px;
-            }
         }
 
         /* Pentru ecrane mai mari în landscape */
         @media screen and (orientation: landscape) and (min-width: 768px) {
             .container {
                 max-width: 95vw;
-            }
-            
-            .history-table th {
-                font-size: 13px;
-                padding: 12px 8px;
-                min-width: 100px;
-            }
-            
-            .history-table td {
-                font-size: 12px;
-                padding: 10px 8px;
-                min-width: 100px;
             }
         }
 
