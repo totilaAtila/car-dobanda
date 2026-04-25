@@ -1,6 +1,7 @@
-const CACHE_NAME = 'car-bundle-v1';
+const CACHE_NAME = 'car-bundle-v2';
 const urlsToCache = [
   './index.html',
+  './sql-wasm.js',
   './sql-wasm.wasm',
   './manifest.json',
   './icon512.png'
