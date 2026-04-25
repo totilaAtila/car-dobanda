@@ -1270,7 +1270,10 @@
             
             // Procesează fiecare înregistrare și aplică formatările din Python
             sortedHistory.slice(0, 24).forEach((record, index) => {
-                const formattedData = formatHistoryRecord(record, history, currentMember.NR_FISA);
+                // sold_impr_prec = soldul lunii anterioare (cronologic) = next item în lista descendentă
+                const prevChronRecord = sortedHistory[index + 1];
+                const soldImprPrec = prevChronRecord ? (prevChronRecord.IMPR_SOLD || 0) : 0;
+                const formattedData = formatHistoryRecord(record, history, currentMember.NR_FISA, soldImprPrec);
                 
                 const row = document.createElement('tr');
                 
@@ -1311,7 +1314,8 @@
         }
 
         // Formatează o înregistrare conform logicii din Python
-        function formatHistoryRecord(record, fullHistory, nrFisa) {
+        function formatHistoryRecord(record, fullHistory, nrFisa, soldImprPrec) {
+            soldImprPrec = soldImprPrec || 0;
             const dobanda = record.DOBANDA || 0;
             const imprDeb = record.IMPR_DEB || 0;
             const imprCred = record.IMPR_CRED || 0;
@@ -1334,22 +1338,37 @@
                 formatted.impr_deb = `<span class="blue-text">${imprDeb.toFixed(2)}</span>`;
             }
             
-            // 2. Verificare pentru achitare împrumut - când există dobândă
+            // 2. Formatare sold împrumut - logică identică cu Python _format_istoric_line
             if (dobanda > 0) {
+                // Regula generală: oricând se aplică dobândă = achitare împrumut anterior
                 formatted.impr_sold = '<span class="green-text">Achitat</span>';
+            } else if (imprSold <= 0.005) {
+                if (imprDeb > 0 && imprCred > 0) {
+                    // Caz special: achitare și împrumut nou în aceeași lună
+                    const expectedOldSold = soldImprPrec - imprCred;
+                    if (expectedOldSold <= 0.005) {
+                        formatted.impr_sold = '<span class="green-text">Achitat</span>';
+                    } else {
+                        formatted.impr_sold = '0.00';
+                    }
+                } else if (imprCred > 0 && soldImprPrec > 0.005) {
+                    // Achitare normală
+                    formatted.impr_sold = '<span class="green-text">Achitat</span>';
+                } else {
+                    formatted.impr_sold = '0.00';
+                }
             }
-            
+
             // 3. Situație rată neachitată
             if (imprSold > 0.005 && imprCred === 0) {
                 // Nu afișăm formatare pentru luna în care se ia împrumutul
                 if (imprDeb === 0) {
                     // Verificăm dacă este prima lună după acordarea împrumutului
-                    const currentPeriod = anul * 100 + luna;
                     const prevPeriod = luna > 1 ? anul * 100 + (luna - 1) : (anul - 1) * 100 + 12;
-                    
+
                     // Caută în istoricul complet dacă luna anterioară a avut împrumut acordat
                     const prevRecord = fullHistory.find(r => (r.ANUL * 100 + r.LUNA) === prevPeriod);
-                    
+
                     if (prevRecord && (prevRecord.IMPR_DEB || 0) > 0) {
                         // Prima lună după împrumut - portocaliu "!NOU!"
                         formatted.impr_cred = '<span class="orange-text">!NOU!</span>';
@@ -1359,15 +1378,12 @@
                     }
                 }
             }
-            
-            // 4. Situație specială: Achitat (când soldul este 0 după un împrumut anterior)
-            if (imprSold === 0) {
-                // Verifică dacă a fost un împrumut înainte
-                const hasHistoryWithLoan = fullHistory.some(r =>
-                    (r.ANUL * 100 + r.LUNA) < (anul * 100 + luna) && (r.IMPR_SOLD || 0) > 0
-                );
 
-                if (hasHistoryWithLoan) {
+            // 4. Override: achitare împrumut anterior și împrumut nou în aceeași lună
+            // (impr_sold > 0 din cauza noului împrumut, dar vechiul sold era achitat)
+            if (imprDeb > 0 && imprCred > 0) {
+                const expectedOldSold = soldImprPrec - imprCred;
+                if (expectedOldSold <= 0.005) {
                     formatted.impr_sold = '<span class="green-text">Achitat</span>';
                 }
             }
@@ -1456,27 +1472,10 @@
                                 
                                 console.log(`Start calculat ca luna următoare după sold zero: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
                             } else {
-                                // PASUL 4: Caută primul împrumut acordat
-                                let firstLoan = null;
-                                for (const record of history) {
-                                    const recordPeriod = record.ANUL * 100 + record.LUNA;
-                                    const imprDeb = record.IMPR_DEB || 0;
-                                    
-                                    if (imprDeb > 0.005) {
-                                        if (!firstLoan || recordPeriod < firstLoan) {
-                                            firstLoan = recordPeriod;
-                                        }
-                                    }
-                                }
-                                
-                                // Folosește primul împrumut sau ultimul acordat, care e mai mic
-                                if (firstLoan && firstLoan <= lastDisbursement) {
-                                    startPeriodVal = firstLoan;
-                                    console.log(`Start = primul împrumut: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
-                                } else {
-                                    startPeriodVal = lastDisbursement;
-                                    console.log(`Start = ultimul împrumut acordat: ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
-                                }
+                                // Dacă nu există sold zero anterior, folosim direct ultimul împrumut acordat
+                                // (identic cu Python: NU mai căutăm primul împrumut vreodată acordat)
+                                startPeriodVal = lastDisbursement;
+                                console.log(`Start = ultimul împrumut (nu s-a găsit sold zero anterior): ${Math.floor(startPeriodVal/100)}-${(startPeriodVal%100).toString().padStart(2, '0')}`);
                             }
                         }
                     } else if (endPeriodVal > 0) {
