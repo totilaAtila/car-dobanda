@@ -15,7 +15,6 @@
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNBUiAtIENhbGN1bGFyZSBEb2LDom5kxIMiLAogICJzaG9ydF9uYW1lIjogIkNBUiIsCiAgImRlc2NyaXB0aW9uIjogIkFwbGljYcWjaWUgcGVudHJ1IGNhbGN1bGFyZWEgZG9iw6JuemkgbGEgaW1wcnVtdXR1cmkiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzY2N2VlYSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSXlOREFpSUdobGFXZG9kRDBpTWpRd0lqNEtJQ0E4WTJseVkyeGxJR040UFNJeE1qQWlJR041UFNJeE1qQWlJSEk5SWprd0lpQm1hV3hzUFNJalhESXdOMk53WVNBeFEwWWlMejRLUEM5emRtYysifSwKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSTFNVElpSUdobGFXZG9kRDBpTlRFeUlqNEtJQ0E4WTJseVkyeGxJR040UFNJeU5UWWlJR041UFNJeU5UWWlJSEk5SWpFNE1DSWdabWxzYkQwaFgyTXlNRGRqY0dFZ01VTkdJaTgrQ2p3dmMyWm5QZz09IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
     
     <!-- Preload pentru resurse critice -->
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     
     <style>
         * {
@@ -973,11 +972,11 @@
         async function loadSQLJS() {
             return new Promise((resolve, reject) => {
                 const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js';
+                script.src = './sql-wasm.js';
                 script.onload = async function() {
                     try {
                         SQL = await initSqlJs({
-                            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+                            locateFile: file => `./${file}`
                         });
                         resolve();
                     } catch (error) {
