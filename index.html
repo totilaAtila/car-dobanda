@@ -1195,13 +1195,11 @@
                     return periodB - periodA; // Descrescător
                 });
 
-                // LOGICA ÎMBUNĂTĂȚITĂ: Găsește cel mai recent împrumut activ (cu sold > 0)
+                // Cel mai recent record determină starea curentă a împrumutului.
+                // Dacă ultimul record are IMPR_SOLD = 0, împrumutul a fost achitat.
                 let activeRecord = null;
-                for (const record of memberFinancials) {
-                    if ((record.IMPR_SOLD || 0) > 0) {
-                        activeRecord = record;
-                        break; // Prima înregistrare cu sold > 0 (cea mai recentă)
-                    }
+                if (memberFinancials.length > 0 && (memberFinancials[0].IMPR_SOLD || 0) > 0) {
+                    activeRecord = memberFinancials[0];
                 }
 
                 currentMember = {
@@ -1362,15 +1360,15 @@
                 }
             }
             
-            // 4. Situație specială: Lichidat (când soldul este 0)
+            // 4. Situație specială: Achitat (când soldul este 0 după un împrumut anterior)
             if (imprSold === 0) {
                 // Verifică dacă a fost un împrumut înainte
-                const hasHistoryWithLoan = fullHistory.some(r => 
+                const hasHistoryWithLoan = fullHistory.some(r =>
                     (r.ANUL * 100 + r.LUNA) < (anul * 100 + luna) && (r.IMPR_SOLD || 0) > 0
                 );
-                
+
                 if (hasHistoryWithLoan) {
-                    formatted.impr_sold = '<span class="grey-text">Lichidat</span>';
+                    formatted.impr_sold = '<span class="green-text">Achitat</span>';
                 }
             }
             
