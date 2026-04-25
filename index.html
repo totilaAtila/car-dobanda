@@ -1716,31 +1716,12 @@
             statusDiv.className = 'upload-status status-' + type;
         }
 
-        // Register service worker pentru PWA
+        // Register service worker pentru PWA offline
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                // Service worker inline pentru PWA simplu
-                const swCode = `
-                    self.addEventListener('install', function(event) {
-                        self.skipWaiting();
-                    });
-                    
-                    self.addEventListener('activate', function(event) {
-                        event.waitUntil(self.clients.claim());
-                    });
-                    
-                    self.addEventListener('fetch', function(event) {
-                        // Permite toate request-urile să treacă prin
-                        event.respondWith(fetch(event.request));
-                    });
-                `;
-                
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                
-                navigator.serviceWorker.register(swUrl)
+                navigator.serviceWorker.register('./service-worker.js')
                     .then(function(registration) {
-                        console.log('Service Worker înregistrat cu succes');
+                        console.log('Service Worker înregistrat:', registration.scope);
                     })
                     .catch(function(error) {
                         console.log('Eroare Service Worker:', error);
