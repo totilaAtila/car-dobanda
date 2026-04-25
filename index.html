@@ -454,18 +454,25 @@
             text-align: center;
         }
 
+        .history-table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
         .history-table {
             width: 100%;
             border-collapse: collapse;
             background: rgba(255,255,255,0.4);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             font-family: 'Consolas', 'Courier New', monospace;
         }
 
         .history-table th {
-            background: rgba(255,255,255,0.6);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: rgba(230,240,255,0.97);
             padding: 8px 4px;
             font-size: 11px;
             font-weight: 600;
@@ -762,20 +769,22 @@
 
             <div class="history-card" id="historyCard">
                 <div class="history-title">📊 Istoric Financiar - Situație Împrumuturi</div>
-                <table class="history-table" id="historyTable">
-                    <thead>
-                        <tr>
-                            <th>Dobândă</th>
-                            <th>Împrumut</th>
-                            <th>Rată</th>
-                            <th>Sold</th>
-                            <th>Dată</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <!-- Datele se vor încărca dinamic -->
-                    </tbody>
-                </table>
+                <div class="history-table-wrapper">
+                    <table class="history-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Dobândă</th>
+                                <th>Împrumut</th>
+                                <th>Rată</th>
+                                <th>Sold</th>
+                                <th>Dată</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Datele se vor încărca dinamic -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="result-card" id="resultCard">
@@ -1269,7 +1278,7 @@
             });
             
             // Procesează fiecare înregistrare și aplică formatările din Python
-            sortedHistory.slice(0, 24).forEach((record, index) => {
+            sortedHistory.forEach((record, index) => {
                 // sold_impr_prec = soldul lunii anterioare (cronologic) = next item în lista descendentă
                 const prevChronRecord = sortedHistory[index + 1];
                 const soldImprPrec = prevChronRecord ? (prevChronRecord.IMPR_SOLD || 0) : 0;
