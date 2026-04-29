@@ -1,4 +1,4 @@
-const CACHE_NAME = 'car-bundle-v3';
+const CACHE_NAME = 'car-bundle-v4';
 const urlsToCache = [
   './index.html',
   './sql-wasm.js',
@@ -21,6 +21,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Navigare (deschidere app) → întotdeauna index.html din cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('./index.html').then(response => response || fetch(event.request))
+    );
+    return;
+  }
+  // Restul resurselor: cache-first
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
