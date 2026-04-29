@@ -925,6 +925,25 @@
                     if (Math.abs(delta) > 40) switchHistoryView(delta > 0 ? 1 : 0);
                 }, { passive: true });
             }
+
+            // Scroll sincronizat între cele două view-uri
+            const view0 = document.getElementById('historyView0');
+            const view1 = document.getElementById('historyView1');
+            if (view0 && view1) {
+                let _syncingScroll = false;
+                view0.addEventListener('scroll', () => {
+                    if (_syncingScroll) return;
+                    _syncingScroll = true;
+                    view1.scrollTop = view0.scrollTop;
+                    _syncingScroll = false;
+                }, { passive: true });
+                view1.addEventListener('scroll', () => {
+                    if (_syncingScroll) return;
+                    _syncingScroll = true;
+                    view0.scrollTop = view1.scrollTop;
+                    _syncingScroll = false;
+                }, { passive: true });
+            }
             
             // Ascunde instrucțiunile PWA după 10 secunde
             setTimeout(() => {
